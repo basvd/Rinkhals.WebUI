@@ -1,0 +1,14 @@
+{
+    "$version": "1",
+
+    "name": "Rinkhals web UI",
+    "description": "Web interface for Rinkhals and Kobra-specific features",
+    "version": "1.0",
+    "depends": [],
+
+    "requirements":
+    {
+        "cpu": 10,
+        "memory": 20
+    }
+}

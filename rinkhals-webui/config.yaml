@@ -1,0 +1,250 @@
+
+listenAddressSingleHTTPFrontend: 0.0.0.0:1414
+
+pageTitle: Rinkhals
+themeName: buttonbox-rinkhals
+showFooter: false
+sectionNavigationStyle: topbar
+enableCustomJs: true
+
+logLevel: "INFO"
+checkForUpdates: false
+
+cronSupportForSeconds: true
+
+actions:
+  # System actions
+
+  - title: Reboot
+    icon: <iconify-icon icon="mdi:restart"></iconify-icon>
+    shell: reboot
+    arguments:
+      - type: confirmation
+        title: Reboot the printer now?
+
+  - title: Sync filesystem
+    icon: <iconify-icon icon="mdi:sync"></iconify-icon>
+    shell: sync
+
+  - title: Refresh apps
+    icon: <iconify-icon icon="mdi:refresh"></iconify-icon>
+    shell: 'echo "$(./scripts/get-entities-apps.sh)" > ./data/apps.json'
+    timeout: 30
+    execOnStartup: true
+
+  - title: Show logs
+    icon: <iconify-icon icon="mdi:file-document-multiple"></iconify-icon>
+    shell: './scripts/output-logs.sh'
+    popupOnStart: execution-dialog-stdout-only
+    timeout: 10
+
+  - title: Check for update
+    icon: <iconify-icon icon="mdi:update"></iconify-icon>
+    shell: 'echo "$(./scripts/get-update-info.sh)" > ./data/update.json'
+    timeout: 30
+    execOnStartup: true
+
+  # Control actions
+
+  - title: Start drying
+    icon: <iconify-icon icon="mdi:heater"></iconify-icon>
+    entity: ace
+    shell: './scripts/start-drying.sh {{ ace.id }} {{ duration }} {{ temp }} && sleep 3'
+    timeout: 5
+    arguments:
+      - title: Duration (minutes)
+        name: duration
+        type: int
+        default: 240
+        rejectNull: true
+      - title: Temperature (℃)
+        name: temp
+        type: int
+        default: 45
+        rejectNull: true
+    triggers:
+      - Refresh ACE status
+
+  - title: Stop drying
+    icon: <iconify-icon icon="mdi:heater-off"></iconify-icon>
+    entity: ace
+    shell: './scripts/stop-drying.sh {{ ace.id }} && sleep 3'
+    timeout: 5
+    triggers:
+      - Refresh ACE status
+
+  - title: Set filament
+    icon: <iconify-icon icon="mdi:circle-edit-outline"></iconify-icon>
+    entity: ace
+    shell: './scripts/set-filament.sh {{ ace.id }} {{ slot }} "{{ material }}" "{{ color }}"'
+    arguments:
+      - title: Slot
+        name: slot
+        rejectNull: true
+        choices:
+          - title: 'Slot #1'
+            value: 0
+          - title: 'Slot #2'
+            value: 1
+          - title: 'Slot #3'
+            value: 2
+          - title: 'Slot #4'
+            value: 3
+      - title: Material
+        name: material
+        rejectNull: true
+        choices:
+          - title: ABS
+            value: ABS
+          - title: ASA
+            value: ASA
+          - title: HIPS
+            value: HIPS
+          - title: PETG
+            value: PETG
+          - title: PLA
+            value: PLA
+          - title: PLA +
+            value: PLA +
+          - title: PLA Glow
+            value: PLA Glow
+          - title: PLA High Speed
+            value: PLA High Speed
+          - title: PLA Marble
+            value: PLA Marble
+          - title: PLA Matte
+            value: PLA Matte
+          - title: PLA SE
+            value: PLA SE
+          - title: PLA Silk
+            value: PLA Silk
+          - title: PA
+            value: PA
+          - title: PACF
+            value: PACF
+          - title: PC
+            value: PC
+          - title: TPU
+            value: TPU
+      - title: Color
+        name: color
+        type: regex:^#[0-9a-fA-F]{6}$
+        rejectNull: true
+    triggers:
+      - Refresh ACE status
+
+  - title: Enable auto-refill
+    icon: <iconify-icon icon="mdi:refresh-auto"></iconify-icon>
+    shell: './scripts/set-ace-config.sh auto_refill 1'
+    triggers:
+      - Refresh ACE status
+
+  - title: Disable auto-refill
+    icon: <iconify-icon icon="mdi:refresh-auto"></iconify-icon>
+    shell: './scripts/set-ace-config.sh auto_refill 0'
+    triggers:
+      - Refresh ACE status
+
+  # - title: Toggle LED
+  #   icon: <iconify-icon icon="mdi:lightbulb"></iconify-icon>
+
+  - title: Refresh ACE status
+    icon: <iconify-icon icon="mdi:refresh"></iconify-icon>
+    shell: 'echo "$(./scripts/get-ace.sh)" > ./data/ace.json; echo "$(./scripts/get-ace-config.sh)" > ./data/ace-config.json'
+    timeout: 10
+    execOnStartup: true
+
+  # App actions
+
+  - title: Enable {{ app.name }}
+    icon: <iconify-icon icon="mdi:toggle-switch-off-outline"></iconify-icon>
+    entity: app
+    shell: './scripts/toggle-app.sh "{{ app.app }}"'
+    triggers:
+      - Refresh apps
+
+  - title: Disable {{ app.name }}
+    icon: <iconify-icon icon="mdi:toggle-switch"></iconify-icon>
+    entity: app
+    shell: './scripts/toggle-app.sh "{{ app.app }}"'
+    triggers:
+      - Refresh apps
+
+entities:
+  - file: ./data/apps.json
+    name: app
+  - file: ./data/update.json
+    name: update
+  - file: ./data/ace.json
+    name: ace
+  - file: ./data/ace-config.json
+    name: ace_config
+
+dashboards:
+  - title: Apps
+    contents:
+      - title: '{{ app.name }}'
+        type: fieldset
+        entity: app
+        contents:
+          - type: display
+            entity: app
+            title: '<p>{{ app.description }}</p>'
+          - title: 'Enable {{ app.name }}'
+            entity: app
+            cssClass: 'if-disabled-{{ app.enabled }}'
+          - title: 'Disable {{ app.name }}'
+            entity: app
+            cssClass: 'if-enabled-{{ app.enabled }}'
+
+  - title: Controls
+    contents:
+      - title: Settings
+        type: fieldset
+        entity: ace_config
+        contents:
+          - title: Refresh ACE status
+          - title: Enable auto-refill
+            entity: ace_config
+            cssClass: 'if-disabled-{{ ace_config.auto_refill }}'
+          - title: Disable auto-refill
+            entity: ace_config
+            cssClass: 'if-enabled-{{ ace_config.auto_refill }}'
+          # - title: Toggle LED
+      - title: 'ACE Pro {{ ace.title_no }}'
+        type: fieldset
+        entity: ace
+        contents:
+          - type: display
+            entity: ace
+            title: '{{ ace.html }}'
+            cssClass: ace-info
+          - title: Set filament
+          - title: Start drying
+            entity: ace
+            cssClass: 'if-disabled-{{ ace.is_drying }}'
+          - title: Stop drying
+            entity: ace
+            cssClass: 'if-enabled-{{ ace.is_drying }}'
+
+  - title: System
+    contents:
+      - title: Rinkhals
+        type: fieldset
+        contents:
+          - title: Refresh apps
+          - title: Show logs
+      - title: Printer
+        type: fieldset
+        contents:
+          - title: Sync filesystem
+          - title: Reboot
+      - title: Firmware update
+        type: fieldset
+        entity: update
+        contents:
+          - title: Check for update
+          - type: display
+            entity: update
+            title: '{{ update.html }}'
+            cssClass: firmware-update
