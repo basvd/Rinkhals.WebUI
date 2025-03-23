@@ -1,6 +1,6 @@
 # Rinkhals Web UI app
 
-A web interface for Rinkhals and Kobra-specific features.
+A web interface for [Rinkhals](https://github.com/jbatonnet/Rinkhals) and Kobra-specific features.
 
 ## Features
 
