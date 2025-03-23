@@ -22,6 +22,8 @@ A web interface for Rinkhals and Kobra-specific features.
 
 You might need to enable the app via the Rinkhals touch UI for it to start.
 
+The web UI can be accessed at: `http://<printer-ip>:1414`
+
 ## Development
 
 To package the application as an `update.swu` file, run the following command from the repository root:
