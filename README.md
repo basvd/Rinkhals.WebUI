@@ -13,6 +13,8 @@ A web interface for [Rinkhals](https://github.com/jbatonnet/Rinkhals) and Kobra-
 
 [^1]: Update checking connects to Anycubic Cloud with the printer ID.
 
+![Preview](preview.gif)
+
 ## Installation
 
 - Download the `update.swu` file for the app from the releases page.
