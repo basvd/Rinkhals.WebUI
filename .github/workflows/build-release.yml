@@ -1,0 +1,30 @@
+name: Build and release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          docker run --rm \
+          -v ${{ github.workspace }}/build:/build \
+          -v ${{ github.workspace }}/rinkhals-webui:/rinkhals-webui \
+          ghcr.io/jbatonnet/rinkhals/build \
+          -c "chmod +x /build/build-swu.sh && /build/build-swu.sh /rinkhals-webui"
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${tag}" \
+              --generate-notes \
+              --draft \
+              build/dist/update-*.swu
