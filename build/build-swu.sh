@@ -27,6 +27,7 @@ cp -r $APP_ROOT/* /tmp/update_swu/$APP/
 # Run app build script
 if [ -f $APP_ROOT/build.sh ]; then
     cd /tmp/update_swu/$APP
+    chmod +x build.sh
     ./build.sh
 fi
 

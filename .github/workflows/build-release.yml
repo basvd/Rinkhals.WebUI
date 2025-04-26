@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Build
@@ -16,7 +18,7 @@ jobs:
           -v ${{ github.workspace }}/build:/build \
           -v ${{ github.workspace }}/rinkhals-webui:/rinkhals-webui \
           ghcr.io/jbatonnet/rinkhals/build \
-          -c "chmod +x /build/build-swu.sh && /build/build-swu.sh /rinkhals-webui"
+          /bin/bash -c "chmod +x /build/build-swu.sh && /build/build-swu.sh /rinkhals-webui"
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
