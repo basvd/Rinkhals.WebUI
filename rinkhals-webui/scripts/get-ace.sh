@@ -7,6 +7,7 @@ def fmt_seconds(s):
 .result.status.filament_hub.filament_hubs as $hubs | $hubs[] | {
     id: .id,
     title_no: (if ($hubs | length > 1) then "#\(.id + 1)" else "" end),
+    action_marker: ($hubs | length as $len | " " * $len),
     is_drying: (.dryer_status.status != "stop"),
     html:
     ((.slots | map(

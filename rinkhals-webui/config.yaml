@@ -46,7 +46,7 @@ actions:
 
   # Control actions
 
-  - title: Start drying
+  - title: Start drying {{ ace.action_marker }}
     icon: <iconify-icon icon="mdi:heater"></iconify-icon>
     entity: ace
     shell: './scripts/start-drying.sh {{ ace.id }} {{ duration }} {{ temp }} && sleep 3'
@@ -65,7 +65,7 @@ actions:
     triggers:
       - Refresh ACE status
 
-  - title: Stop drying
+  - title: Stop drying {{ ace.action_marker }}
     icon: <iconify-icon icon="mdi:heater-off"></iconify-icon>
     entity: ace
     shell: './scripts/stop-drying.sh {{ ace.id }} && sleep 3'
@@ -73,7 +73,7 @@ actions:
     triggers:
       - Refresh ACE status
 
-  - title: Set filament
+  - title: Set filament {{ ace.action_marker }}
     icon: <iconify-icon icon="mdi:circle-edit-outline"></iconify-icon>
     entity: ace
     shell: './scripts/set-filament.sh {{ ace.id }} {{ slot }} "{{ material }}" "{{ color }}"'
@@ -210,7 +210,6 @@ dashboards:
           - title: Disable auto-refill
             entity: ace_config
             cssClass: 'if-enabled-{{ ace_config.auto_refill }}'
-          # - title: Toggle LED
       - title: 'ACE Pro {{ ace.title_no }}'
         type: fieldset
         entity: ace
@@ -219,11 +218,12 @@ dashboards:
             entity: ace
             title: '{{ ace.html }}'
             cssClass: ace-info
-          - title: Set filament
-          - title: Start drying
+          - title: Set filament {{ ace.action_marker }}
+            entity: ace
+          - title: Start drying {{ ace.action_marker }}
             entity: ace
             cssClass: 'if-disabled-{{ ace.is_drying }}'
-          - title: Stop drying
+          - title: Stop drying {{ ace.action_marker }}
             entity: ace
             cssClass: 'if-enabled-{{ ace.is_drying }}'
 
