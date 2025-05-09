@@ -197,6 +197,7 @@ if __name__ == "__main__":
         "K2P": 20021,
         "K3": 20024,
         "KS1": 20025,
+        "K3M": 20026,
     }
 
     parser = argparse.ArgumentParser(description="Report firmware update information.")
