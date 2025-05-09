@@ -3,7 +3,7 @@
 
     "name": "Rinkhals web UI",
     "description": "Web interface for Rinkhals and Kobra-specific features",
-    "version": "1.0",
+    "version": "1.2",
     "depends": [],
 
     "requirements":
