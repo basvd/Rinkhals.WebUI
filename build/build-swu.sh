@@ -47,5 +47,6 @@ rm -rf /build/dist/update.swu
 cd /build/dist
 zip -P U2FsdGVkX19deTfqpXHZnB5GeyQ/dtlbHjkUnwgCi+w= -r update-k2p-k3.swu update_swu
 zip -P U2FsdGVkX1+lG6cHmshPLI/LaQr9cZCjA8HZt6Y8qmbB7riY -r update-ks1.swu update_swu
+zip -P 4DKXtEGStWHpPgZm8Xna9qluzAI8VJzpOsEIgd8brTLiXs8fLSu3vRx8o7fMf4h6 -r update-k3m.swu update_swu
 
 echo "Done, your update packages are ready: build/dist/update-*.swu"
