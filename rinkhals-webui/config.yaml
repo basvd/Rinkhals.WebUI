@@ -145,8 +145,14 @@ actions:
     triggers:
       - Refresh ACE status
 
-  # - title: Toggle LED
-  #   icon: <iconify-icon icon="mdi:lightbulb"></iconify-icon>
+
+  - title: Turn LED on
+    icon: <iconify-icon icon="mdi:lightbulb-on"></iconify-icon>
+    shell: './scripts/set-led.sh 1'
+
+  - title: Turn LED off
+    icon: <iconify-icon icon="mdi:lightbulb-outline"></iconify-icon>
+    shell: './scripts/set-led.sh 0'
 
   - title: Refresh ACE status
     icon: <iconify-icon icon="mdi:refresh"></iconify-icon>
@@ -226,6 +232,11 @@ dashboards:
           - title: Stop drying {{ ace.action_marker }}
             entity: ace
             cssClass: 'if-enabled-{{ ace.is_drying }}'
+      - title: 'LED'
+        type: fieldset
+        contents:
+          - title: Turn LED on
+          - title: Turn LED off
 
   - title: System
     contents:
