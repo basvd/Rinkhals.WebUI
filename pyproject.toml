@@ -14,28 +14,34 @@ keywords = ["micropython", "webui", "rinkhals"]
 [project.optional-dependencies]
 dev = [
     "micropython-stdlib-stubs>=1.20.0.post2",
+    "micropython-unix-stubs>=1.20.0",
     "ruff>=0.4.10",
     "pyright>=1.1.347",
     "pytest>=8.3",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/rinkhals_webui"]
+packages = [
+    "rinkhals-webui/src/rinkhals_webui",
+    "rinkhals-webui/src/microdot",
+]
 
 [tool.hatch.envs.default]
+path = ".venv"
 dependencies = [
     "micropython-stdlib-stubs>=1.20.0.post2",
+    "micropython-unix-stubs>=1.20.0",
     "ruff>=0.4.10",
     "pytest>=8.3",
     "pyright>=1.1.347",
 ]
 
 [tool.hatch.envs.default.env-vars]
-MICROPYPATH = "src"
+MICROPYPATH = "rinkhals-webui/src:.frozen:/home/vscode/.micropython/lib:/usr/lib/micropython"
 
 [tool.hatch.envs.default.scripts]
-lint = "ruff check src"
-format = "ruff format src"
+lint = "ruff check rinkhals-webui/src"
+format = "ruff format rinkhals-webui/src"
 test = "pytest"
 run = "micropython -m rinkhals_webui"
 repl = "micropython"

@@ -1,0 +1,13 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": [
+    "rinkhals-webui/src",
+    "rinkhals-webui/scripts"
+  ],
+  "ignore": [
+    "rinkhals-webui/src/microdot"
+  ],
+  // Micropython type stubs have no source
+  "reportMissingModuleSource": "none"
+}
