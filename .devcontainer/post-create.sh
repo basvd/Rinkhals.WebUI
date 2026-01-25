@@ -12,3 +12,4 @@ git config --global --add safe.directory "${workspace_dir}"
 
 cd "${workspace_dir}"
 hatch -v env create
+micropython "${workspace_dir}/.devcontainer/install_micropython_lib.py"

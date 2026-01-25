@@ -8,6 +8,14 @@
   "ignore": [
     "rinkhals-webui/src/microdot"
   ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        "rinkhals-webui/src"
+      ]
+    }
+  ],
   // Micropython type stubs have no source
   "reportMissingModuleSource": "none"
 }
