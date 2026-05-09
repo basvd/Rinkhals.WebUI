@@ -9,8 +9,18 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "@poppanator/sveltekit-svg": "^7.0.0",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "@zag-js/color-picker": "^1.40.0",
+    "@zag-js/svelte": "^1.40.0",
+    "daisyui": "^5.5.19",
     "svelte": "^5.48.2",
-    "vite": "^5.0.12"
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.8"
+  },
+  "dependencies": {
+    "@material-symbols/svg-200": "^0.44.6",
+    "bits-ui": "^2.18.1"
   }
 }
