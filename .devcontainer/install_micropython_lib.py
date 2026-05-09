@@ -65,6 +65,7 @@ PACKAGES = [
     "venv",
     "warnings",
     "zlib",
+    "github:josverl/micropython-stubs/mip/typing.json",
 ]
 
 
