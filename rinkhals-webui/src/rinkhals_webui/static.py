@@ -1,18 +1,17 @@
+import os
 from os import path
-from pathlib import Path
 
 from microdot import Response, send_file
 
 
-STATIC_DIR = str((Path(__file__).parent / "../../static/dist").resolve())
+STATIC_DIR = os.environ.get("STATIC_DIR")
 
 
 def frontend_missing_response() -> Response:
     """Return a helpful message when the static bundle is unavailable."""
 
     message = (
-        "Static frontend bundle not found. Run `yarn install && yarn build` inside "
-        "the `frontend/` directory before starting Microdot."
+        "Static frontend bundle not found. Run `hatch run build-frontend` from the project root."
     )
 
     return Response(message, status_code=503, headers={"Content-Type": "text/plain; charset=UTF-8"})

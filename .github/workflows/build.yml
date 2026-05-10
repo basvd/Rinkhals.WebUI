@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Install build tools
+        run: |
+          corepack enable yarn
+          pip install hatch mpy-cross
+      - name: Build
+        run: hatch run build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: swu-packages
+          path: build/dist/update-*.swu

@@ -14,6 +14,7 @@ keywords = ["micropython", "webui", "rinkhals"]
 [dependency-groups]
 dev = [
     "micropython-unix-stubs>=1.26.0.post1",
+    "mpy-cross>=1.24.1",
     "ruff>=0.14.14",
     "pyright>=1.1.408",
     "pytest>=9.0.2",
@@ -33,6 +34,7 @@ dependency-groups = [
 
 [tool.hatch.envs.default.env-vars]
 MICROPYPATH = "rinkhals-webui/src:.frozen:/home/vscode/.micropython/lib:/usr/lib/micropython"
+STATIC_DIR = "build/dist/frontend"
 
 [tool.hatch.envs.default.scripts]
 lint = "ruff check rinkhals-webui/src"
@@ -40,3 +42,7 @@ format = "ruff format rinkhals-webui/src"
 test = "pytest"
 run = "micropython -m rinkhals_webui"
 repl = "micropython"
+build-frontend = "cd frontend && yarn install --frozen-lockfile && yarn build"
+build-mpy = "sh build/compile-mpy.sh"
+build-swu = "sh build/build-swu.sh"
+build = ["build-frontend", "build-mpy", "build-swu"]

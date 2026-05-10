@@ -28,8 +28,23 @@ The web UI can be accessed at: `http://<printer-ip>:1414`
 
 ## Development
 
-To package the application as an `update.swu` file, run the following command from the repository root:
+This project uses a [dev container](https://containers.dev/) with build dependencies pre-configured.
+
+To get started, open this repository in VS Code and select **Reopen in Container** when prompted (or run the **Dev Containers: Reopen in Container** command). This requires [Docker](https://www.docker.com/) and the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+
+### Build
+
+To build the full `update.swu` packages:
 
 ```
-docker run --rm -it -v .\build:/build -v .\rinkhals-webui:/rinkhals-webui ghcr.io/jbatonnet/rinkhals/build /build/build-swu.sh "/rinkhals-webui"
+hatch run build
 ```
+
+This runs three steps in sequence:
+1. `build-frontend`: builds the web frontend
+2. `build-mpy`: compiles Micropython bytecode
+3. `build-swu`: creates installation packages
+
+Individual steps can also be run separately: `hatch run <step-name>`.
+
+Output files are written to `build/dist/`.

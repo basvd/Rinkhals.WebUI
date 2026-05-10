@@ -22,9 +22,8 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: '../rinkhals-webui/static/dist',
-    emptyOutDir: true,
-    sourcemap: true
+    outDir: '../build/dist/frontend',
+    emptyOutDir: true
   },
   server: {
     host: "0.0.0.0",
