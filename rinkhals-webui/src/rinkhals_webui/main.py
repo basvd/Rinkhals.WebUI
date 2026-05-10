@@ -149,6 +149,30 @@ async def set_led(request):
     return json_response({"on": bool(body["on"])})
 
 
+@app.route("/api/camera-led", methods=["GET"])
+async def get_camera_led(request):
+    try:
+        on = printer_controller.get_camera_led()
+    except Exception as exc:
+        return error_response(str(exc))
+    return json_response({"on": on})
+
+
+@app.route("/api/camera-led", methods=["POST"])
+async def set_camera_led(request):
+    try:
+        body = get_json_body(request)
+    except ValueError as exc:
+        return error_response(str(exc), status_code=400)
+    if "on" not in body:
+        return error_response("Missing field: on", status_code=400)
+    try:
+        printer_controller.set_camera_led(bool(body["on"]))
+    except Exception as exc:
+        return error_response(str(exc))
+    return json_response({"on": bool(body["on"])})
+
+
 # ---------------------------------------------------------------------------
 # Apps API
 # ---------------------------------------------------------------------------

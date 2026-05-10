@@ -1,23 +1,31 @@
 <script>
-  import IconCounter1 from '@material-symbols/svg-200/rounded/counter_1-fill.svg?component';
-  import IconCounter2 from '@material-symbols/svg-200/rounded/counter_2-fill.svg?component';
-  import IconCounter3 from '@material-symbols/svg-200/rounded/counter_3-fill.svg?component';
-  import IconCounter4 from '@material-symbols/svg-200/rounded/counter_4-fill.svg?component';
-  import IconHeat from '@material-symbols/svg-200/rounded/heat-fill.svg?component';
-  import IconStop from '@material-symbols/svg-200/rounded/stop-fill.svg?component';
-  import IconThermostat from '@material-symbols/svg-200/rounded/device_thermostat-fill.svg?component';
-  import IconTimer from '@material-symbols/svg-200/rounded/timer-fill.svg?component';
+  import IconCounter1 from '@material-symbols/svg-400/rounded/counter_1-fill.svg?component';
+  import IconCounter2 from '@material-symbols/svg-400/rounded/counter_2-fill.svg?component';
+  import IconCounter3 from '@material-symbols/svg-400/rounded/counter_3-fill.svg?component';
+  import IconCounter4 from '@material-symbols/svg-400/rounded/counter_4-fill.svg?component';
+  import IconHeat from '@material-symbols/svg-400/rounded/heat-fill.svg?component';
+  import IconStop from '@material-symbols/svg-400/rounded/stop-fill.svg?component';
+  import IconThermostat from '@material-symbols/svg-400/rounded/device_thermostat-fill.svg?component';
+  import IconTimer from '@material-symbols/svg-400/rounded/timer-fill.svg?component';
   import FilamentSlotDialog from './FilamentSlotDialog.svelte';
+  import { toaster } from '@/lib/toast';
 
   const SLOT_ICONS = [IconCounter1, IconCounter2, IconCounter3, IconCounter4];
 
   /**
    * @type {{
    *   aceId?: number,
-   *   apiBase?: string
+   *   apiBase?: string,
+   *   refreshTick?: number
    * }}
    */
-  let { aceId = 0, apiBase = '' } = $props();
+  let { aceId = 0, apiBase = '', refreshTick = 0 } = $props();
+
+  // Re-fetch whenever refreshTick changes (also runs on mount)
+  $effect(() => {
+    void refreshTick;
+    fetchHub();
+  });
 
   /* ------------------------------------------------------------------ */
   /*  Placeholder data (used until the backend is available)             */
@@ -52,7 +60,6 @@
    *                    remaining_seconds: number|null, is_active: boolean } }|null} */
   let hub = $state(PLACEHOLDER_HUB);
   let loading = $state(false);
-  let error = $state('');
 
   /* ------------------------------------------------------------------ */
   /*  Drying controls                                                    */
@@ -63,70 +70,100 @@
   let dryLoading = $state(false);
 
   /* ------------------------------------------------------------------ */
-  /*  Slot‑edit dialog state                                             */
+  /*  Slot‑edit dialog                                                  */
   /* ------------------------------------------------------------------ */
 
-  let dialogOpen = $state(false);
-  let dialogSlotIndex = $state(0);
-  let dialogMaterial = $state('');
-  let dialogColor = $state('#FFFFFF');
+  let slotDialog;
 
   /* ------------------------------------------------------------------ */
   /*  Stub actions (no backend yet — mutate placeholder state directly)  */
   /* ------------------------------------------------------------------ */
 
   async function fetchHub() {
-    // No-op: hub is already populated with placeholder data
+    loading = true;
+    try {
+      const res = await fetch(`${apiBase}/api/ace`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const hubs = data.filament_hubs ?? [];
+      const found = hubs.find(h => h.id === aceId);
+      if (found) hub = found;
+    } catch (err) {
+      if (!hub) toaster.error({ title: 'Filament Hub', description: String(err) });
+    } finally {
+      loading = false;
+    }
   }
 
   async function startDrying() {
     if (!hub) return;
     dryLoading = true;
-    hub = {
-      ...hub,
-      dryer: {
-        status: 'drying',
-        target_temp: dryTemp,
-        remaining_seconds: dryDuration * 3600,
-        is_active: true,
-      },
-    };
-    dryLoading = false;
+    try {
+      const res = await fetch(`${apiBase}/api/ace/${aceId}/drying`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // API expects duration in minutes; dryDuration is stored as hours
+        body: JSON.stringify({ duration: dryDuration * 60, temp: dryTemp }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await fetchHub();
+    } catch (err) {
+      toaster.error({ title: 'Start drying', description: String(err) });
+      // Optimistic fallback so the UI reflects intent
+      hub = {
+        ...hub,
+        dryer: {
+          status: 'drying',
+          target_temp: dryTemp,
+          remaining_seconds: dryDuration * 3600,
+          is_active: true,
+        },
+      };
+    } finally {
+      dryLoading = false;
+    }
   }
 
   async function stopDrying() {
     if (!hub) return;
     dryLoading = true;
-    hub = {
-      ...hub,
-      dryer: {
-        status: 'stop',
-        target_temp: null,
-        remaining_seconds: null,
-        is_active: false,
-      },
-    };
-    dryLoading = false;
+    try {
+      const res = await fetch(`${apiBase}/api/ace/${aceId}/drying`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await fetchHub();
+    } catch (err) {
+      toaster.error({ title: 'Stop drying', description: String(err) });
+      hub = {
+        ...hub,
+        dryer: { status: 'stop', target_temp: null, remaining_seconds: null, is_active: false },
+      };
+    } finally {
+      dryLoading = false;
+    }
   }
 
   async function setFilament(slotIdx, material, colorHex) {
     if (!hub) return;
+    // Optimistic update
     hub = {
       ...hub,
       slots: hub.slots.map(s =>
         s.index === slotIdx
-          ? {
-              ...s,
-              type: material,
-              status: 'loaded',
-              color: {
-                rgb: hexToRgb(colorHex),
-                hex: colorHex,
-              },
-            }
+          ? { ...s, type: material, status: 'loaded', color: { rgb: hexToRgb(colorHex), hex: colorHex } }
           : s
       ),
     };
+    try {
+      const res = await fetch(`${apiBase}/api/ace/${aceId}/filament`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slot: slotIdx, material, color: colorHex }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      toaster.error({ title: 'Set filament', description: String(err) });
+      await fetchHub(); // Revert to actual server state
+    }
   }
 
   /** Convert "#RRGGBB" to { r, g, b }. */
@@ -144,19 +181,11 @@
   /* ------------------------------------------------------------------ */
 
   function openSlotDialog(slot) {
-    dialogSlotIndex = slot.index ?? 0;
-    dialogMaterial = slot.type ?? '';
-    dialogColor = slot.color?.hex ?? '#FFFFFF';
-    dialogOpen = true;
+    slotDialog.open(slot);
   }
 
   function handleDialogApply(data) {
-    dialogOpen = false;
-    setFilament(dialogSlotIndex, data.material, data.color);
-  }
-
-  function handleDialogCancel() {
-    dialogOpen = false;
+    setFilament(data.slotIndex, data.material, data.color);
   }
 
   /* ------------------------------------------------------------------ */
@@ -175,7 +204,7 @@
   }
 </script>
 
-<div class="card card-border w-full max-w-xl">
+<div class="card card-border bg-base-100 border-base-300 w-full max-w-xl">
   <div class="card-body gap-4">
   <!-- Header -->
   <header class="flex justify-between items-center">
@@ -184,7 +213,7 @@
       <div class="flex items-center gap-3 text-sm opacity-75">
         {#if hub.temperature != null}
           <span class="flex items-center gap-1">
-            <IconThermostat width={16} height={16} fill="currentColor" />
+            <IconThermostat class="icon-inline" />
             {hub.temperature}°C
           </span>
         {/if}
@@ -197,8 +226,7 @@
 
   {#if loading && !hub}
     <p class="text-sm opacity-60">Loading…</p>
-  {:else if error && !hub}
-    <div role="alert" class="alert alert-error text-sm">{error}</div>
+
   {:else if hub}
     <!-- Filament slots -->
     <div class="grid grid-cols-4 gap-3">
@@ -222,8 +250,8 @@
     <div class="divider my-0"></div>
     <div class="space-y-3">
       <h3 class="text-sm font-semibold flex items-center gap-1.5">
-        <IconHeat width={18} height={18} fill="currentColor" />
-        Filament Drying
+        <IconHeat class="icon-inline" />
+        Dry Box
       </h3>
 
       {#if hub.dryer.is_active}
@@ -231,11 +259,11 @@
         <div role="alert" class="alert alert-warning flex-col items-start gap-2 text-sm">
           <div class="flex justify-between w-full">
             <span class="flex items-center gap-1">
-              <IconThermostat width={14} height={14} fill="currentColor" />
+              <IconThermostat class="icon-inline" />
               Target: {hub.dryer.target_temp ?? '—'}°C
             </span>
             <span class="flex items-center gap-1">
-              <IconTimer width={14} height={14} fill="currentColor" />
+              <IconTimer class="icon-inline" />
               {formatRemaining(hub.dryer.remaining_seconds)}
             </span>
           </div>
@@ -245,7 +273,7 @@
             disabled={dryLoading}
             onclick={stopDrying}
           >
-            <IconStop width={16} height={16} fill="currentColor" />
+            <IconStop class="icon-inline" />
             Stop Drying
           </button>
         </div>
@@ -267,25 +295,17 @@
           disabled={dryLoading}
           onclick={startDrying}
         >
-          <IconHeat width={16} height={16} fill="currentColor" />
+          <IconHeat class="icon-inline" />
           Start Drying
         </button>
       {/if}
     </div>
-
-    {#if error}
-      <div role="alert" class="alert alert-error text-sm">{error}</div>
-    {/if}
   {/if}
   </div>
 </div>
 
 <!-- Slot edit dialog -->
 <FilamentSlotDialog
-  open={dialogOpen}
-  slotIndex={dialogSlotIndex}
-  material={dialogMaterial}
-  color={dialogColor}
+  bind:this={slotDialog}
   onApply={handleDialogApply}
-  onCancel={handleDialogCancel}
 />

@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@material-symbols/svg-200": "^0.44.6",
-    "bits-ui": "^2.18.1"
+    "@material-symbols/svg-400": "^0.44.6",
+    "@zag-js/menu": "^1.40.0",
+    "@zag-js/toast": "^1.40.0"
   }
 }

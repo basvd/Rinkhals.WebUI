@@ -1,7 +1,7 @@
 <script>
-  import IconLight from '@material-symbols/svg-200/rounded/light_mode-fill.svg?component';
-  import IconDark from '@material-symbols/svg-200/rounded/dark_mode-fill.svg?component';
-  import IconSystem from '@material-symbols/svg-200/rounded/monitor-fill.svg?component';
+  import IconLight from '@material-symbols/svg-400/rounded/light_mode-fill.svg?component';
+  import IconDark from '@material-symbols/svg-400/rounded/dark_mode-fill.svg?component';
+  import IconSystem from '@material-symbols/svg-400/rounded/monitor.svg?component';
 
   /** @type {'system' | 'light' | 'dark'} */
   let theme = $state(
@@ -22,29 +22,29 @@
   }
 </script>
 
-<div class="join">
+<div role="tablist" class="tabs tabs-box tabs-sm mx-2 flex-nowrap">
   <button
-    type="button"
+    role="tab"
     title="System theme"
-    class="btn btn-ghost btn-sm join-item {theme === 'system' ? 'btn-active' : ''}"
+    class="tab {theme === 'system' ? 'tab-active' : ''}"
     onclick={() => applyTheme('system')}
   >
-    <IconSystem width={16} height={16} fill="currentColor" />
+    <IconSystem class="icon-inline" />
   </button>
   <button
-    type="button"
+    role="tab"
     title="Light theme"
-    class="btn btn-ghost btn-sm join-item {theme === 'light' ? 'btn-active' : ''}"
+    class="tab {theme === 'light' ? 'tab-active' : ''}"
     onclick={() => applyTheme('light')}
   >
-    <IconLight width={16} height={16} fill="currentColor" />
+    <IconLight class="icon-inline" />
   </button>
   <button
-    type="button"
+    role="tab"
     title="Dark theme"
-    class="btn btn-ghost btn-sm join-item {theme === 'dark' ? 'btn-active' : ''}"
+    class="tab {theme === 'dark' ? 'tab-active' : ''}"
     onclick={() => applyTheme('dark')}
   >
-    <IconDark width={16} height={16} fill="currentColor" />
+    <IconDark class="icon-inline" />
   </button>
 </div>
