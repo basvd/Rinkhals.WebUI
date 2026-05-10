@@ -1,0 +1,29 @@
+{
+  "name": "rinkhals-webui-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@poppanator/sveltekit-svg": "^7.0.0",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "@zag-js/color-picker": "^1.40.0",
+    "@zag-js/svelte": "^1.40.0",
+    "daisyui": "^5.5.19",
+    "svelte": "^5.48.2",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.8"
+  },
+  "dependencies": {
+    "@material-symbols/svg-200": "^0.44.6",
+    "@material-symbols/svg-400": "^0.44.6",
+    "@zag-js/menu": "^1.40.0",
+    "@zag-js/toast": "^1.40.0"
+  },
+  "packageManager": "yarn@4.14.1"
+}

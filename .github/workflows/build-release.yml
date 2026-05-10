@@ -7,18 +7,18 @@ on:
 
 jobs:
   build:
+    uses: ./.github/workflows/build.yml
+
+  release:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Build
-        run: |
-          docker run --rm \
-          -v ${{ github.workspace }}/build:/build \
-          -v ${{ github.workspace }}/rinkhals-webui:/rinkhals-webui \
-          ghcr.io/jbatonnet/rinkhals/build \
-          /bin/bash -c "chmod +x /build/build-swu.sh && /build/build-swu.sh /rinkhals-webui"
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: swu-packages
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,4 +29,4 @@ jobs:
               --title="${GITHUB_REPOSITORY#*/} ${tag}" \
               --generate-notes \
               --draft \
-              build/dist/update-*.swu
+              update-*.swu

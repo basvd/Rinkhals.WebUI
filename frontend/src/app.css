@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+
+:root {
+  font-size: 20px;
+}
+
+body {
+  min-width: 30rem;
+}
+
+.icon-inline {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}

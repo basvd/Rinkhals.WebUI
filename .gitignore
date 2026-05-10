@@ -1,1 +1,7 @@
+.venv/
+.ruff_cache/
+.yarn/
+.pnp.*
+__pycache__/
+node_modules/
 build/dist/

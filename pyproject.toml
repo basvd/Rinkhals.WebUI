@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rinkhals-webui"
+version = "2.0.0"
+description = "Web interface for Rinkhals and Kobra-specific features."
+license = { text = "MIT" }
+authors = [{ name = "Bas van Doren" }]
+requires-python = ">=3.11"
+keywords = ["micropython", "webui", "rinkhals"]
+
+[dependency-groups]
+dev = [
+    "micropython-unix-stubs>=1.26.0.post1",
+    "mpy-cross>=1.24.1",
+    "ruff>=0.14.14",
+    "pyright>=1.1.408",
+    "pytest>=9.0.2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "rinkhals-webui/src/rinkhals_webui",
+    "rinkhals-webui/src/microdot"
+]
+
+[tool.hatch.envs.default]
+path = ".venv"
+dependency-groups = [
+    "dev",
+]
+
+[tool.hatch.envs.default.env-vars]
+MICROPYPATH = "rinkhals-webui/src:.frozen:/home/vscode/.micropython/lib:/usr/lib/micropython"
+STATIC_DIR = "build/dist/frontend"
+
+[tool.hatch.envs.default.scripts]
+lint = "ruff check rinkhals-webui/src"
+format = "ruff format rinkhals-webui/src"
+test = "pytest"
+run = "micropython -m rinkhals_webui"
+repl = "micropython"
+build-frontend = "cd frontend && yarn install --frozen-lockfile && yarn build"
+build-mpy = "sh build/compile-mpy.sh"
+build-swu = "sh build/build-swu.sh"
+build = ["build-frontend", "build-mpy", "build-swu"]
